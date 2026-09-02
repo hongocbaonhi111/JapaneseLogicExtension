@@ -1,0 +1,5 @@
+Important:
+- This source was generated from the uploaded JapaneseLearn_New_1.aia, especially DetailSearch.bky.
+- The extension intentionally exposes SetVerbSpecialList because ListVerbSpecial is loaded dynamically by the original app.
+- The exact original ListKeyTense is fixed to: い,き,ぎ,ち,ぢ,に,ひ,び,ぴ,み,り,し,じ.
+- The AIX is not prebuilt in this environment because the Android/App Inventor build chain is not installed here. The GitHub Actions workflow builds it online, so the user's Windows PC does not need Java.
