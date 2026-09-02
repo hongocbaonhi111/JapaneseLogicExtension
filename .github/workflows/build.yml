@@ -1,0 +1,29 @@
+name: Build JapaneseLogic AIX
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build AIX Extension
+        id: build
+        uses: pavi2410/AIX-Action@main
+        with:
+          source-dir: src
+          package-name: com.nhi.japanese
+          appinventor-repo: mit-cml/appinventor-sources
+          appinventor-branch: master
+
+      - name: Upload AIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: JapaneseLogic-aix
+          path: ${{ steps.build.outputs.extension-path }}
