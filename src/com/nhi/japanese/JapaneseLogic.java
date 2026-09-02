@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  * The same extension can be used from Screen1, Screen2, Screen3, etc.
  */
 @DesignerComponent(
-    version = 1,
+    version = 2,
     description = "Shared Japanese verb conjugation logic for Kodular.",
     category = ComponentCategory.EXTENSION,
     nonVisible = true,
@@ -119,69 +119,20 @@ public class JapaneseLogic extends AndroidNonvisibleComponent implements com.goo
    */
   @SimpleFunction(description = "Convert a Japanese verb to the same 11 tense forms used by DetailSearch.")
   public YailList TransferVerbTense(String hiraganaTransfer, String kanjiTransfer) {
-    if (hiraganaTransfer == null) hiraganaTransfer = "";
-    if (kanjiTransfer == null) kanjiTransfer = "";
+    hiraganaTransfer = normalizeInput(hiraganaTransfer);
+    kanjiTransfer = normalizeInput(kanjiTransfer);
 
-    String hiraVariable = "";
-    String hiraTransCombine = "";
-    String kanjiVariable = "";
-    String kanjiTransCombine = "";
-
-    String[] hiraRemoved = japaneseRemove(hiraganaTransfer);
-    if (hiraRemoved.length >= 2) {
-      hiraVariable = hiraRemoved[0];
-      hiraTransCombine = hiraRemoved[1];
-    }
-
-    String[] kanjiRemoved = japaneseRemove(kanjiTransfer);
-    if (kanjiRemoved.length >= 2) {
-      kanjiVariable = kanjiRemoved[0];
-      kanjiTransCombine = kanjiRemoved[1];
-    } else if (kanjiTransfer.length() == 0 && hiraRemoved.length >= 2) {
-      // The original project calls JapaneseRemove("") after processing Hira.
-      // JapaneseRemove does nothing for an empty input, so the previous list
-      // remains in effect. This preserves that behavior for the common case.
-      kanjiVariable = hiraVariable;
-      kanjiTransCombine = hiraTransCombine;
-    }
-
-    FormPair ru = transRu(hiraVariable, kanjiVariable);
-    FormPair re = transRe(hiraVariable, kanjiVariable);
-    FormPair ba = transBa(hiraVariable, kanjiVariable);
-    FormPair yo = transYo(hiraVariable, kanjiVariable);
-    FormPair nai = transNai(hiraVariable, kanjiVariable);
-    FormPair ro = transRo(hiraVariable, kanjiVariable);
-    FormPair rare = transRare(hiraVariable, kanjiVariable);
-    FormPair sase = transSase(hiraVariable, kanjiVariable);
-    FormPair te = transTe(hiraVariable, kanjiVariable);
-    FormPair ta = transTa(hiraVariable, kanjiVariable);
-
+    // The original block receives the complete dictionary-form strings.
+    // Build the conjugations from the Hira form, then apply the same kana
+    // replacement to the Kanji form so that the Kanji stem is preserved.
     ArrayList<Object> hira = new ArrayList<Object>();
     ArrayList<Object> kanji = new ArrayList<Object>();
 
-    hira.add(joinBase(hiraTransCombine, te.hira));
-    hira.add(joinBase(hiraTransCombine, nai.hira));
-    hira.add(joinBase(hiraTransCombine, ru.hira));
-    hira.add(joinBase(hiraTransCombine, ta.hira));
-    hira.add(joinBase(hiraTransCombine, re.hira));
-    hira.add(joinBase(hiraTransCombine, ba.hira));
-    hira.add(joinBase(hiraTransCombine, yo.hira));
-    hira.add(joinBase(hiraTransCombine, ro.hira));
-    hira.add(joinBase(hiraTransCombine, rare.hira));
-    hira.add(joinBase(hiraTransCombine, sase.hira));
-    hira.add(joinBase(hiraTransCombine, ru.hira + "な"));
+    String[] h = conjugateHira(hiraganaTransfer);
+    String[] k = conjugateKanji(hiraganaTransfer, kanjiTransfer, h);
 
-    kanji.add(joinBase(kanjiTransCombine, te.kanji));
-    kanji.add(joinBase(kanjiTransCombine, nai.kanji));
-    kanji.add(joinBase(kanjiTransCombine, ru.kanji));
-    kanji.add(joinBase(kanjiTransCombine, ta.kanji));
-    kanji.add(joinBase(kanjiTransCombine, re.kanji));
-    kanji.add(joinBase(kanjiTransCombine, ba.kanji));
-    kanji.add(joinBase(kanjiTransCombine, yo.kanji));
-    kanji.add(joinBase(kanjiTransCombine, ro.kanji));
-    kanji.add(joinBase(kanjiTransCombine, rare.kanji));
-    kanji.add(joinBase(kanjiTransCombine, sase.kanji));
-    kanji.add(joinBase(kanjiTransCombine, ru.kanji + "な"));
+    for (String v : h) hira.add(v);
+    for (String v : k) kanji.add(v);
 
     hiraResults = YailList.makeList(hira);
     kanjiResults = YailList.makeList(kanji);
@@ -191,6 +142,167 @@ public class JapaneseLogic extends AndroidNonvisibleComponent implements com.goo
     result.add(kanjiResults);
     return YailList.makeList(result);
   }
+
+  /**
+   * Accept both the normal dictionary strings (e.g. たべる / 食べる) and the
+   * old bracketed representation used by some stored rows. For the latter,
+   * use the text after the first ] when it looks like a conjugation key;
+   * otherwise keep the original text. This makes the extension safe to use
+   * directly with DataVolArr values.
+   */
+  private static String normalizeInput(String s) {
+    if (s == null) return "";
+    s = s.trim().replace("[", "").replace("]", "");
+    return s;
+  }
+
+  /** Return the 11 forms in the exact order used by DetailSearch. */
+  private static String[] conjugateHira(String word) {
+    String w = word == null ? "" : word;
+    if (w.length() == 0) return emptyForms();
+
+    // Irregular verbs.
+    if ("する".equals(w)) return forms("して", "しない", "する", "した", "できる", "すれば", "しよう", "しろ!", "される", "させる", "するな");
+    if ("くる".equals(w)) return forms("きて", "こない", "くる", "きた", "こられる", "くれば", "こよう", "こい!", "こられる", "こさせる", "くるな");
+    if ("いく".equals(w)) return forms("いって", "いかない", "いく", "いった", "いける", "いけば", "いこう", "いけ!", "いかれる", "いかせる", "いくな");
+    if ("ある".equals(w)) return forms("あって", "ない", "ある", "あった", "ありえる", "あれば", "あろう", "あれ!", "あられる", "あらせる", "あるな");
+    if ("くれる".equals(w)) return forms("くれて", "くれない", "くれる", "くれた", "くれられる", "くれれば", "くれよう", "くれろ!", "くれられる", "くれさせる", "くれるな");
+
+    if (w.endsWith("る") && w.length() >= 2) {
+      String stem = w.substring(0, w.length() - 1);
+      char before = w.charAt(w.length() - 2);
+      if (isIOrEColumn(before)) {
+        return forms(stem + "て", stem + "ない", w, stem + "た", stem + "られる", stem + "れば", stem + "よう", stem + "ろ!", stem + "られる", stem + "させる", w + "な");
+      }
+    }
+
+    // Godan verbs. The final kana is replaced according to its row.
+    if (w.length() >= 1) {
+      String stem = w.substring(0, w.length() - 1);
+      String last = w.substring(w.length() - 1);
+      String a = toA(last);
+      String i = toI(last);
+      String e = toE(last);
+      String o = toO(last);
+      if (!a.isEmpty() && !i.isEmpty() && !e.isEmpty() && !o.isEmpty()) {
+        String te;
+        String ta;
+        if ("うつる".contains(last)) { te = stem + "って"; ta = stem + "った"; }
+        else if ("ぬぶむ".contains(last)) { te = stem + "んで"; ta = stem + "んだ"; }
+        else if ("く".equals(last)) { te = stem + "いて"; ta = stem + "いた"; }
+        else if ("ぐ".equals(last)) { te = stem + "いで"; ta = stem + "いだ"; }
+        else if ("す".equals(last)) { te = stem + "して"; ta = stem + "した"; }
+        else { te = stem + i + "て"; ta = stem + i + "た"; }
+        return forms(te, stem + a + "ない", w, ta, stem + e + "る", stem + e + "ば", stem + o + "う", stem + e + "!", stem + a + "れる", stem + a + "せる", w + "な");
+      }
+    }
+    return forms(w, w, w, w, w, w, w, w, w, w, w);
+  }
+
+  private static String[] conjugateKanji(String hira, String kanji, String[] hiraForms) {
+    if (kanji == null) kanji = "";
+    if (kanji.isEmpty()) return hiraForms.clone();
+    if (hira == null || hira.isEmpty()) return hiraForms.clone();
+
+    String hiraStem = hira.substring(0, hira.length() - 1);
+    String kanjiStem = kanji;
+    if (kanji.endsWith(hira.substring(hira.length() - 1))) {
+      kanjiStem = kanji.substring(0, kanji.length() - 1);
+    }
+
+    // Ichidan/irregular forms are easiest to construct by replacing the
+    // final dictionary kana (or the final matching kana suffix) with the
+    // ending that appears in the Hira result.
+    String[] out = new String[hiraForms.length];
+    for (int n = 0; n < hiraForms.length; n++) {
+      String hf = hiraForms[n];
+      String ending = hf;
+      if (hf.startsWith(hiraStem)) ending = hf.substring(hiraStem.length());
+      else if (hira.endsWith("する") && hf.startsWith("し")) ending = hf.substring(1);
+      else if (hira.endsWith("くる") && hf.startsWith("く")) ending = hf.substring(1);
+
+      if (n == 2) { out[n] = kanji; continue; }
+      if ("いく".equals(hira) && n == 0) { out[n] = kanjiStem + "って"; continue; }
+      if ("いく".equals(hira) && n == 3) { out[n] = kanjiStem + "った"; continue; }
+      if ("する".equals(hira)) { out[n] = specialKanjiSuru(kanji, n, hf); continue; }
+      if ("くる".equals(hira)) { out[n] = specialKanjiKuru(kanji, n, hf); continue; }
+
+      // If the Kanji word ends with the same dictionary kana, replace it.
+      String lastKana = hira.substring(hira.length() - 1);
+      if (kanji.endsWith(lastKana)) out[n] = kanjiStem + ending;
+      else out[n] = kanji + ending;
+    }
+    return out;
+  }
+
+  private static String specialKanjiSuru(String k, int n, String hf) {
+    if (n == 2) return k;
+    String stem = k.endsWith("する") ? k.substring(0, k.length() - 2) : k;
+    switch (n) {
+      case 0: return stem + "して";
+      case 1: return stem + "しない";
+      case 3: return stem + "した";
+      case 4: return stem + "できる";
+      case 5: return stem + "すれば";
+      case 6: return stem + "しよう";
+      case 7: return stem + "しろ!";
+      case 8: return stem + "される";
+      case 9: return stem + "させる";
+      default: return k + "な";
+    }
+  }
+
+  private static String specialKanjiKuru(String k, int n, String hf) {
+    if (n == 2) return k;
+    if (k.endsWith("来る")) {
+      String stem = k.substring(0, k.length() - 1);
+      switch (n) {
+        case 0: return stem + "て";
+        case 1: return stem + "ない";
+        case 3: return stem + "た";
+        case 4: return stem + "られる";
+        case 5: return stem + "れば";
+        case 6: return stem + "よう";
+        case 7: return stem + "い!";
+        case 8: return stem + "られる";
+        case 9: return stem + "させる";
+        default: return k + "な";
+      }
+    }
+    return hf;
+  }
+
+  private static boolean isIOrEColumn(char c) {
+    return "いきぎしじちぢにひびぴみりえけげせぜてでねへべぺめれ".indexOf(c) >= 0;
+  }
+
+  private static String toA(String s) {
+    String[] from = {"う","く","ぐ","す","ず","つ","づ","ぬ","は","ひ","ふ","へ","ほ","ば","び","ぶ","べ","ぼ","ぱ","ぴ","ぷ","ぺ","ぽ","む","め","も","る","れ"};
+    String[] to =   {"わ","か","が","さ","ざ","た","だ","な","は","は","ふ","へ","ほ","ば","ば","ぶ","べ","ぼ","ぱ","ぱ","ぷ","ぺ","ぽ","ま","め","も","ら","れ"};
+    return mapKana(s, from, to);
+  }
+  private static String toI(String s) {
+    String[] from = {"う","く","ぐ","す","ず","つ","づ","ぬ","は","ひ","ふ","へ","ほ","ば","び","ぶ","べ","ぼ","ぱ","ぴ","ぷ","ぺ","ぽ","む","め","も","る","れ"};
+    String[] to =   {"い","き","ぎ","し","じ","ち","ぢ","に","ひ","ひ","ふ","へ","ほ","び","び","ぶ","べ","ぼ","ぴ","ぴ","ぷ","ぺ","ぽ","み","め","も","り","れ"};
+    return mapKana(s, from, to);
+  }
+  private static String toE(String s) {
+    String[] from = {"う","く","ぐ","す","ず","つ","づ","ぬ","は","ひ","ふ","へ","ほ","ば","び","ぶ","べ","ぼ","ぱ","ぴ","ぷ","ぺ","ぽ","む","め","も","る","れ"};
+    String[] to =   {"え","け","げ","せ","ぜ","て","で","ね","は","ひ","ふ","へ","ほ","べ","び","ぶ","べ","ぼ","ぺ","ぴ","ぷ","ぺ","ぽ","め","め","も","れ","れ"};
+    return mapKana(s, from, to);
+  }
+  private static String toO(String s) {
+    String[] from = {"う","く","ぐ","す","ず","つ","づ","ぬ","は","ひ","ふ","へ","ほ","ば","び","ぶ","べ","ぼ","ぱ","ぴ","ぷ","ぺ","ぽ","む","め","も","る","れ"};
+    String[] to =   {"お","こ","ご","そ","ぞ","と","ど","の","ほ","ひ","ふ","へ","ほ","ぼ","び","ぶ","べ","ぼ","ぽ","ぴ","ぷ","ぺ","ぽ","も","め","も","ろ","ろ"};
+    return mapKana(s, from, to);
+  }
+  private static String mapKana(String s, String[] from, String[] to) {
+    for (int i = 0; i < from.length; i++) if (from[i].equals(s)) return to[i];
+    return "";
+  }
+
+  private static String[] forms(String... values) { return values; }
+  private static String[] emptyForms() { return forms("","","","","","","","","","",""); }
 
   @SimpleFunction(description = "Return only the Hira 11-item result list for the supplied verb.")
   public YailList TransferVerbTenseHira(String hiraganaTransfer, String kanjiTransfer) {
