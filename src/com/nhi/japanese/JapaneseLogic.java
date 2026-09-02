@@ -254,6 +254,21 @@ public class JapaneseLogic extends AndroidNonvisibleComponent implements com.goo
     return kanjiResults;
   }
 
+
+  /** Create an 11-item ending list in the same order used by the extension. */
+  private static String[] forms(String a, String b, String c, String d, String e, String f, String g, String h, String i, String j, String k) {
+    return new String[]{a, b, c, d, e, f, g, h, i, j, k};
+  }
+
+  /** True for the Japanese i/e sound columns used to recognize Ichidan verbs. */
+  private static boolean isIOrEColumn(char c) {
+    return c == 'い' || c == 'き' || c == 'ぎ' || c == 'し' || c == 'じ'
+        || c == 'ち' || c == 'に' || c == 'ひ' || c == 'び' || c == 'ぴ'
+        || c == 'み' || c == 'り' || c == 'え' || c == 'け' || c == 'げ'
+        || c == 'せ' || c == 'ぜ' || c == 'て' || c == 'で' || c == 'ね'
+        || c == 'へ' || c == 'べ' || c == 'ぺ' || c == 'め' || c == 'れ';
+  }
+
   private static String cleanBase(String s) {
     if (s == null) return "";
     return s.replace("[", "").replace("]", "");
