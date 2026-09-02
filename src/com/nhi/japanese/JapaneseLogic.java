@@ -255,6 +255,11 @@ public class JapaneseLogic extends AndroidNonvisibleComponent implements com.goo
   }
 
 
+  /** Create an empty 11-item ending list. */
+  private static String[] emptyForms() {
+    return new String[]{"", "", "", "", "", "", "", "", "", "", ""};
+  }
+
   /** Create an 11-item ending list in the same order used by the extension. */
   private static String[] forms(String a, String b, String c, String d, String e, String f, String g, String h, String i, String j, String k) {
     return new String[]{a, b, c, d, e, f, g, h, i, j, k};
