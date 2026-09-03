@@ -344,7 +344,10 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
     if (special) {
       return ichidanForms();
     }
-
+    if (hira.length() == 1 && checkLastIsKanji(kanji)
+         && kanji.length() == 1) {
+    return ichidanForms();
+    }
     String last = lastChar(hira);
 
     // ============================================================
