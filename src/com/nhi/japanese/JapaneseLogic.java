@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  *   Te, Nai, Ru, Ta, Re, Ba, Yo, Ro, Rare, Sase, Ru+na
  */
 @DesignerComponent(
-    version = 6,
+    version = 7,
     description = "Shared Japanese verb conjugation logic using the original DetailSearch checks.",
     category = ComponentCategory.EXTENSION,
     nonVisible = true,
@@ -449,7 +449,7 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
       }
     }
 
-    return blankForms();
+    return ichidanForms();
   }
 
   /**
