@@ -289,14 +289,14 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
     // This MUST be before generic final し.
     if (shi) {
       return forms(
-          "て",
-          "ない",
+          "して",
+          "しない",
           "する",
-          "た",
+          "した",
           "できる",
           "すれば",
-          "よう",
-          "ろ!",
+          "しよう",
+          "しろ!",
           "られる",
           "させる",
           "するな");
@@ -307,10 +307,10 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
     // ============================================================
     if (ki) {
       return forms(
-          "て",
-          "ない",
+          "きて",
+          "こない",
           "くる",
-          "た",
+          "きた",
           "こられる",
           "くれば",
           "こよう",
@@ -634,7 +634,7 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
       }
     }
 
-    return blankForms();
+    return ichidanForms();
   }
 
   /**
