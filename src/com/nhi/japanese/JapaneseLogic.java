@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  * The same extension can be used from Screen1, Screen2, Screen3, etc.
  */
 @DesignerComponent(
-    version = 3,
+    version = 4,
     description = "Shared Japanese verb conjugation logic for Kodular.",
     category = ComponentCategory.EXTENSION,
     nonVisible = true,
@@ -340,7 +340,7 @@ public class JapaneseLogic extends AndroidNonvisibleComponent implements com.goo
     if ("し".equals(hira) || KATAKANA.matcher(first).matches()) return true;
 
     if (kanji != null && kanji.length() >= 3) {
-      String last2 = safeSegment(kanji, kanji.length() - 1, 2);
+      String last2 = safeSegment(kanji, kanji.length() - 2, 2);
       if (KANJI_2_END.matcher(last2).matches()) return true;
     } else if (hira.length() > 3 && (kanji == null || kanji.length() == 0)) {
       return true;
