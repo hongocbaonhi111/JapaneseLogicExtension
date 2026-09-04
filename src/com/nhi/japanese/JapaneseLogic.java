@@ -640,8 +640,8 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
       }
     }
 
-    String hiraLast = lastChar(hira);
-    return ichidanForms(hiraLast);
+    ///String hiraLast = lastChar(hira);
+    return ichidanForms(last);
   }
 
   /**
@@ -654,10 +654,11 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
    */
   private String[] ichidanForms(String hiraLast) {
     return forms(
-        hiraLast + "る",
-        hiraLast + "ない",
         hiraLast + "て",
+        hiraLast + "ない",
+        hiraLast + "る",
         hiraLast + "た",
+        hiraLast + "られ",
         hiraLast + "れば",
         hiraLast + "よう",
         hiraLast + "ろ!",
