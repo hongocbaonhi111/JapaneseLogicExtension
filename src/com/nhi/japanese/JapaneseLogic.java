@@ -652,7 +652,7 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
    *   み + ない
    *   おき + る
    */
-  private static String[] ichidanForms(String last) {
+  private static String[] ichidanForms(String hiraLast) {
     return forms(
         hiraLast + "て",
         hiraLast + "ない",
