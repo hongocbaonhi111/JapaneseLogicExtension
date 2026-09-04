@@ -342,19 +342,23 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
     // ORIGINAL ListVerbSpecial
     // ============================================================
     if (special) {
-      return ichidanForms();
+      String hiraLast = lastChar(hira);
+      return ichidanForms(hiraLast);
     }
     if (hira.length() == 1 && checkLastIsKanji(kanji)
          && kanji.length() == 1) {
-    return ichidanForms();
+    String hiraLast = lastChar(hira);
+    return ichidanForms(hiraLast);
     }
     String last = lastChar(hira);
 
     // ============================================================
     // The original procedure treats final え as Ichidan.
     // ============================================================
-    if ("え".equals(last)) {
-      return ichidanForms();
+    // Ichidan
+    if ("えけげせぜてでねへべぺめれ".contains(last)) {
+       String hiraLast = lastChar(hira);
+       return ichidanForms(hiraLast);
     }
 
     // ============================================================
@@ -445,11 +449,13 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
     if ("る".equals(last) && hira.length() >= 2) {
       String prev = hira.substring(hira.length() - 2, hira.length() - 1);
       if (isIOrEColumn(prev)) {
-        return ichidanForms();
+        String hiraLast = lastChar(hira);
+        return ichidanForms(hiraLast);
       }
     }
 
-    return ichidanForms();
+    String hiraLast = lastChar(hira);
+    return ichidanForms(hiraLast);
   }
 
   /**
@@ -634,7 +640,8 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
       }
     }
 
-    return ichidanForms();
+    String hiraLast = lastChar(hira);
+    return ichidanForms(hiraLast);
   }
 
   /**
@@ -645,20 +652,20 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
    *   み + ない
    *   おき + る
    */
-  private static String[] ichidanForms() {
+  private String[] ichidanForms(String hiraLast) {
     return forms(
-        "て",
-        "ない",
-        "る",
-        "た",
-        "られる",
-        "れば",
-        "よう",
-        "ろ!",
-        "られる",
-        "させる",
-        "るな");
-  }
+        hiraLast + "る",
+        hiraLast + "ない",
+        hiraLast + "て",
+        hiraLast + "た",
+        hiraLast + "れば",
+        hiraLast + "よう",
+        hiraLast + "ろ!",
+        hiraLast + "られる",
+        hiraLast + "させる",
+        hiraLast + "るな"
+    );
+}
 
   private static String[] forms(
       String a, String b, String c, String d, String e,
