@@ -297,7 +297,7 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
           "すれば",
           "しよう",
           "しろ!",
-          "られる",
+          "される",
           "させる",
           "するな");
     }
