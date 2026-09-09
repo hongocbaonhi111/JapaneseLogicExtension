@@ -364,10 +364,10 @@ if ("あり".equals(hira) && (kanji == null || kanji.isEmpty())) {
         lastHira + "られ",          // た
         lastHira + "れば",        // ば
         lastHira + "よう",        // よう
-        lastHira + "れ！",        // よう
+        "れ！",        // よう
         lastHira + "られる",      // られる
         lastHira + "させる",      // させる
-        lastHira + "るな",        // るな
+        lastHira + "るな"        // るな
     );
 }
     // ============================================================
