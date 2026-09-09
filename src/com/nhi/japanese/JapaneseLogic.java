@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  *   Te, Nai, Ru, Ta, Re, Ba, Yo, Ro, Rare, Sase, Ru+na
  */
 @DesignerComponent(
-    version = 7,
+    version = 8,
     description = "Shared Japanese verb conjugation logic using the original DetailSearch checks.",
     category = ComponentCategory.EXTENSION,
     nonVisible = true,
@@ -357,9 +357,10 @@ if ("あり".equals(hira) && (kanji == null || kanji.isEmpty())) {
     String lastHira = lastChar(hira);
 
     return forms(
-        lastHira + "る",          // る
+        lastHira + "て",          // る
         lastHira + "ない",        // ない
-        lastHira + "て",          // て
+        lastHira + "る",          // て
+        lastHira + "た",          // た
         lastHira + "た",          // た
         lastHira + "れば",        // ば
         lastHira + "よう",        // よう
@@ -367,7 +368,6 @@ if ("あり".equals(hira) && (kanji == null || kanji.isEmpty())) {
         lastHira + "られる",      // られる
         lastHira + "させる",      // させる
         lastHira + "るな",        // るな
-        lastHira                   // âm cuối
     );
 }
     // ============================================================
