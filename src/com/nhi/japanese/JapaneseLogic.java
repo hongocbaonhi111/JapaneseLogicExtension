@@ -337,7 +337,39 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
           "かせる",
           "くな");
     }
+// ある → ない
+if ("あり".equals(hira) && (kanji == null || kanji.isEmpty())) {
+    return forms(
+        "って",       // て
+        "ない",       // ない
+        "る",         // る
+        "った",       // た
+        "れる",       // れる
+        "れば",       // ば
+        "ろう",       // よう
+        "れ!",        // ろ!
+        "られる",     // られる
+        "らせる",     // させる
+        "るな"        // るな
+    );
+}
+      if ("くれ".equals(hira)) {
+    String lastHira = lastChar(hira);
 
+    return forms(
+        lastHira + "る",          // る
+        lastHira + "ない",        // ない
+        lastHira + "て",          // て
+        lastHira + "た",          // た
+        lastHira + "れば",        // ば
+        lastHira + "よう",        // よう
+        lastHira + "くれ",                   // ろ → giữ nguyên
+        lastHira + "られる",      // られる
+        lastHira + "させる",      // させる
+        lastHira + "るな",        // るな
+        lastHira                   // âm cuối
+    );
+}
     // ============================================================
     // ORIGINAL ListVerbSpecial
     // ============================================================
