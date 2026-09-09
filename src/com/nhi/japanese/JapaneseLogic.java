@@ -364,7 +364,7 @@ if ("あり".equals(hira) && (kanji == null || kanji.isEmpty())) {
         lastHira + "た",          // た
         lastHira + "れば",        // ば
         lastHira + "よう",        // よう
-        lastHira + "くれ",                   // ろ → giữ nguyên
+        "れ",                   // ろ → giữ nguyên
         lastHira + "られる",      // られる
         lastHira + "させる",      // させる
         lastHira + "るな",        // るな
