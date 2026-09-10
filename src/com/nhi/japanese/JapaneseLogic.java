@@ -495,56 +495,75 @@ public class JapaneseLogic extends AndroidNonvisibleComponent
    */
   private boolean checkShiThreeGr(String hira, String kanji) {
 
+    // Không có Hiragana
     if (hira == null || hira.length() == 0) {
-      return false;
+        return false;
     }
 
+    // Phải kết thúc bằng「し」
     String last = safeSegment(hira, hira.length(), 1);
 
     if (!"し".equals(last)) {
-      return false;
+        return false;
     }
 
-    // Original:
-    // if HiraCheck = し -> true
+    // -----------------------------------------
+    // Điều kiện 1:
+    // Hira chỉ có「し」
+    // Ví dụ: し
+    // -----------------------------------------
     if ("し".equals(hira)) {
-      return true;
+        return true;
     }
 
-    // Original:
-    // if first Hira character matches [ァ-ン]+ -> true
+    // -----------------------------------------
+    // Điều kiện 2:
+    // Không có Kanji + Hira dài hơn 3 ký tự
+    // Ví dụ:
+    // びっくりし → する
+    // -----------------------------------------
+    if (hira.length() > 3 &&
+        (kanji == null || kanji.trim().isEmpty())) {
+        return true;
+    }
+
+    // -----------------------------------------
+    // Điều kiện 3:
+    // Ký tự đầu tiên là Katakana
+    // Ví dụ:
+    // カットし → する
+    // -----------------------------------------
     String first = safeSegment(hira, 1, 1);
 
     if (KATAKANA.matcher(first).matches()) {
-      return true;
+        return true;
     }
 
-    // Original Kanji check:
-    // text_segment(KanjiCheck, length(KanjiCheck)-2, 2)
+    // -----------------------------------------
+    // Điều kiện 4:
+    // Có ít nhất 3 Kanji
+    // Kiểm tra 2 Kanji ngay trước「し」
     //
-    // Correct Java equivalent:
-    // substring(length - 3, length - 1)
-    //
-    // This checks the TWO Kanji immediately before final し.
+    // Ví dụ:
+    // 勉強し → する
+    // Kanji = 勉強し
+    // lấy「勉強」
+    // -----------------------------------------
     if (kanji != null && kanji.length() >= 3) {
 
-      String beforeShi2 =
-          kanji.substring(kanji.length() - 3, kanji.length() - 1);
+        String beforeShi2 =
+            kanji.substring(kanji.length() - 3, kanji.length() - 1);
 
-      if (KANJI_2_END.matcher(beforeShi2).matches()) {
-        return true;
-      }
-
-    } else if (hira.length() > 3 &&
-               (kanji == null || kanji.length() == 0)) {
-
-      // Original fallback
-      return true;
+        if (KANJI_2_END.matcher(beforeShi2).matches()) {
+            return true;
+        }
     }
 
+    // -----------------------------------------
+    // Không thỏa điều kiện nào
+    // -----------------------------------------
     return false;
-  }
-
+}
   /**
    * Exact logic of original CheckWithKJspecial.
    *
